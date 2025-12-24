@@ -1,0 +1,123 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+------------To store driver details------------------
+struct Driver {
+    int id;
+    int x, y;
+    bool available;
+
+    Driver(int id, int x, int y) {
+        this->id = id;
+        this->x = x;
+        this->y = y;
+        this->available = true;
+    }
+};
+
+// ----------------To store Rider details----------------
+struct Rider {
+    int id;
+    int x, y;
+
+    Rider(int id, int x, int y) {
+        this->id = id;
+        this->x = x;
+        this->y = y;
+    }
+};
+
+// ---------------- about Ride Managment ----------------
+class RideManager {
+private:
+    vector<Driver> drivers;
+
+   
+    int distanceCalc(int x1, int y1, int x2, int y2) {
+        return abs(x1 - x2) + abs(y1 - y2);
+    }
+
+public:
+    void addDriver(int id, int x, int y) {
+        drivers.emplace_back(id, x, y);
+    }
+
+    int matchRider(const Rider &r) {
+        int minDist = INT_MAX;
+        int assignedDriver = -1;
+
+        for (auto &d : drivers) {
+            if (d.available) {
+                int dist = distanceCalc(d.x, d.y, r.x, r.y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    assignedDriver = d.id;
+                }
+            }
+        }
+
+        if (assignedDriver != -1) {
+            for (auto &d : drivers) {
+                if (d.id == assignedDriver) {
+                    d.available = false;
+                    break;
+                }
+            }
+        }
+
+        return assignedDriver;
+    }
+
+
+    void completeRide(int driverId) {
+        for (auto &d : drivers) {
+            if (d.id == driverId) {
+                d.available = true;
+                break;
+            }
+        }
+    }
+
+  
+    void showDrivers() {
+        cout << "\nDriver Status:\n";
+        for (auto &d : drivers) {
+            cout << "Driver " << d.id << " -> "
+                 << (d.available ? "Available" : "Busy") << endl;
+        }
+    }
+};
+
+
+int main() {
+    RideManager manager;
+
+    // Adding drivers
+    manager.addDriver(1, 2, 3);
+    manager.addDriver(2, 5, 1);
+    manager.addDriver(3, 1, 4);
+
+   // request from rider
+    Rider r1(101, 2, 2);
+
+  //assigning driver
+    int driverId = manager.matchRider(r1);
+
+    if (driverId != -1) {
+        cout << "Rider " << r1.id << " assigned to Driver " << driverId << endl;
+    } else {
+        cout << "No driver available\n";
+    }
+
+    manager.showDrivers();
+
+    // Complete ride
+    if (driverId != -1) {
+        manager.completeRide(driverId);
+        cout << "\nRide completed for Driver " << driverId << endl;
+    }
+  // shows details of drivers
+    manager.showDrivers();
+
+    return 0;
+}
